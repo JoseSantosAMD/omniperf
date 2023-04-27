@@ -176,19 +176,19 @@ enable_testing()
 
 add_test(
     NAME test_analyze_commands
-    COMMAND ${Python3_EXECUTABLE} -m pytest
+    COMMAND py.test --junit-xml=tests/report.xml
             ${PROJECT_SOURCE_DIR}/tests/test_analyze_commands.py
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 add_test(
     NAME test_analyze_workloads
-    COMMAND ${Python3_EXECUTABLE} -m pytest
+    COMMAND py.test --junit-xml=tests/report.xml
             ${PROJECT_SOURCE_DIR}/tests/test_analyze_workloads.py
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 add_test(
     NAME test_saved_analysis
-    COMMAND ${Python3_EXECUTABLE} -m pytest
+    COMMAND py.test --junit-xml=tests/report.xml
             ${PROJECT_SOURCE_DIR}/tests/test_saved_analysis.py
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
