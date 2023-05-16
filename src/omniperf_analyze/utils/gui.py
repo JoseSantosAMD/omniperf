@@ -53,13 +53,16 @@ HIDDEN_SECTIONS = ["Memory Chart Analysis", "Kernels"]
 HIDDEN_COLUMNS = ["Tips", "coll_level"]
 IS_DARK = True  # default dark theme
 
+# Define any elements which will have full width
+full_width_elmt = {1801}
+
 # Define different types of bar charts
 barchart_elements = {
     # Group table ids by chart type
     "instr_mix": [1001, 1002],
     "multi_bar": [1604, 1704],
     "sol": [1101, 1201, 1301, 1401, 1601, 1701],
-    "l2_cache_per_chan": [1801, 1802],
+    "l2_cache_per_chan": [1802, 1803],
 }
 
 
@@ -420,10 +423,11 @@ def build_layout(
         [Input("kernel-filt", "value")],
         [Input("gcd-filt", "value")],
         [Input("norm-filt", "value")],
+        [Input("top-n-filt", "value")],
         [State("container", "children")],
     )
     def generate_from_filter(
-        disp_filt, kernel_filter, gcd_filter, norm_filt, div_children
+        disp_filt, kernel_filter, gcd_filter, norm_filt, top_n_filt, div_children
     ):
         if verbose >= 1:
             print("normalization is ", norm_filt)
@@ -435,18 +439,19 @@ def build_layout(
         if verbose >= 1:
             print("disp-filter is ", disp_filt)
             print("kernel-filter is ", kernel_filter)
-            print("gpu-filter is ", gcd_filter, "\n")
+            print("gpu-filter is ", gcd_filter)
+            print("top-n kernel filter is ", top_n_filter, "\n")
         base_data[base_run].filter_kernel_ids = kernel_filter
         base_data[base_run].filter_gpu_ids = gcd_filter
         base_data[base_run].filter_dispatch_ids = disp_filt
+        base_data[base_run].filter_top_n = top_n_filt
         # Reload the pmc_kernel_top.csv for Top Stats panel
-        num_results = 10
         file_io.create_df_kernel_top_stats(
             path_to_dir,
             base_data[base_run].filter_gpu_ids,
             base_data[base_run].filter_dispatch_ids,
             time_unit,
-            num_results,
+            base_data[base_run].filter_top_n,
         )
         is_gui = True
         # Only display basic metrics if no filters are applied
@@ -580,11 +585,20 @@ def build_layout(
                                     style={"color": "white" if IS_DARK else ""},
                                 ),
                             )
-
                         # Update content for this section
-                        html_section.append(
-                            html.Div(className="float-child", children=content)
-                        )
+                        if table_config["id"] in full_width_elmt:
+                            # Optionally override default (50%) width
+                            html_section.append(
+                                html.Div(
+                                    className="float-child",
+                                    children=content,
+                                    style={"width": "100%"},
+                                )
+                            )
+                        else:
+                            html_section.append(
+                                html.Div(className="float-child", children=content)
+                            )
 
                 # Append the new section with all of it's contents
                 div_children.append(
