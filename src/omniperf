@@ -127,7 +127,6 @@ def resolve_rocprof():
 
 def get_soc():
     mspec = specs.get_machine_specs(0)
-    return "mi200"
 
     target = ""
     if mspec.GPU == "gfx906":
